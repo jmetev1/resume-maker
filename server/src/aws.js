@@ -10,7 +10,7 @@ AWS.config.update({
   region: process.env.AWS_region,
 });
 const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
-const Bucket = process.env.AWS_bucketname;
+const Bucket = process.env.EXPENSE_BUCKET;
 
 exports.getSignedUrl = async (filename) => {
   // Get signed URL from S3
@@ -29,7 +29,7 @@ exports.getSignedUrl = async (filename) => {
 
 exports.addPhoto = (name) => {
   const params = {
-    Bucket: process.env.AWS_bucketname,
+    Bucket: process.env.EXPENSE_BUCKET,
     Key: name,
     Body: fs.readFileSync(`./receipts/${name}.png`),
     ContentType: 'image/png',
