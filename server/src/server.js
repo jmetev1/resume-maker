@@ -1,16 +1,16 @@
 const express = require('express');
-const path = require('path');
+// const path = require('path');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
 const app = express();
-const buildDir = path.join(__dirname, '..', 'build');
+// const buildDir = path.join(__dirname, '..', 'build');
 
 dotenv.load();
 const development = process.env.NODE_ENV === 'development';
 const reload = development ? require('reload') : 'n';
 
-if (!development) app.use(express.static(buildDir));
+// if (!development) app.use(express.static(buildDir));
 const http = require('http');
 const bodyParser = require('body-parser');
 const session = require('express-session');
@@ -18,13 +18,12 @@ const MongoDBStore = require('connect-mongodb-session')(session);
 const fileupload = require('express-fileupload');
 const aws = require('./aws');
 
-const store = new MongoDBStore(
-  {
-    // uri: `mongodb://${process.env.DBusername}:${process.env.DBPW}@ds127783.mlab.com:27783/poolmap`,
-    uri: `mongodb+srv://${process.env.DBusername}:${process.env.DBPW}@poolmap.ppvei.mongodb.net/poolmap?retryWrites=true&w=majority`,
-    databaseName: 'poolmap',
-    collection: 'mySessions',
-  },
+const store = new MongoDBStore({
+  // uri: `mongodb://${process.env.DBusername}:${process.env.DBPW}@ds127783.mlab.com:27783/poolmap`,
+  uri: `mongodb+srv://${process.env.DBusername}:${process.env.DBPW}@poolmap.ppvei.mongodb.net/poolmap?retryWrites=true&w=majority`,
+  databaseName: 'poolmap',
+  collection: 'mySessions',
+},
   (err) => {
     console.log(' session store err', err);
   }
@@ -35,7 +34,14 @@ store.on('error', (error) => {
 });
 const db = require('./db');
 
+const corsOptions = {
+  origin: 'http://localhost:3001',
+  // origin: process.env.CORS_ORIGIN || 'https://expenseeagle.net',
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+console.log({ corsOptions });
 app.set('port', process.env.PORT || 3000);
+app.use(cors(corsOptions));
 app.use(
   session({
     name: 'server-session-cookie-id',

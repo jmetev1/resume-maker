@@ -4,20 +4,12 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node server/server",
-    "prod": "NODE_ENV=PRODUCTION nodemon server/server",
-    "buildrun": "npm run build && npm run prodauth",
-    "prodauth": "NODE_ENV=PRODUCTION authentication=true nodemon server/server",
-    "build": "node scripts/build.js",
-    "dev": "PORT=3001 REACT_APP_REGION=west node scripts/start.js",
-    "devboth": "npm run dev & npm run dev-server",
+    "build": "NODE_OPTIONS='--openssl-legacy-provider=true' node scripts/build.js",
+    "dev": "PORT=3001 NODE_OPTIONS='--openssl-legacy-provider=true' node scripts/start.js",
     "fresh": "rm -rf node_modules && npm i",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "dev-all": "run-p dev dev-server",
-    "dev-server": "supervisor  -w server -- server/server.js",
-    "dev-server2": "supervisor --no-restart-on exit -w server -- server/server.js ",
     "test": "npx playwright test --headed",
-    "precommit": "npm run build && npm run prodauth"
+    "prod-serve": "PORT=3001 serve -s build"
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^0.2.34",
@@ -76,6 +68,7 @@
     "resolve-url-loader": "3.1.0",
     "sass-loader": "7.2.0",
     "semver": "6.3.0",
+    "serve": "^14.2.0",
     "source-map-explorer": "^2.2.2",
     "style-loader": "1.0.0",
     "supervisor": "0.12.0",
