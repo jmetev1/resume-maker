@@ -35,8 +35,7 @@ store.on('error', (error) => {
 const db = require('./db');
 
 const corsOptions = {
-  origin: 'http://localhost:3001',
-  // origin: process.env.CORS_ORIGIN || 'https://expenseeagle.net',
+  origin: process.env.CORS_ORIGIN || 'http://expenseeagle.net',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 console.log({ corsOptions });
