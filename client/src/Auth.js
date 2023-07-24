@@ -35,6 +35,8 @@ const Auth = () => {
           .then((loginResult) => {
             if (loginResult) setUser(authData)
             else throw new Error('did not get true from post to login instead got', loginResult)
+          }).catch(error => {
+            console.log('cors problem probably?', error)
           });
       }
 
