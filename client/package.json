@@ -147,7 +147,6 @@
       "react-app"
     ]
   },
-  "proxy": "http://localhost:3000",
   "prettier": {
     "singleQuote": true,
     "trailingComma": "es5"

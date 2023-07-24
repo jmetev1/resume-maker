@@ -1,5 +1,4 @@
-const mongoose = require('mongoose');
-
+import mongoose from 'mongoose'
 const { Schema } = mongoose;
 
 const AttestSchema = new Schema({ signed: Boolean, date: String });
@@ -21,7 +20,13 @@ const VisitSchema = new Schema({
   clinicName: String,
   photoLocation: String,
 });
-
+export type Provider = {
+  name: string,
+  ytdTotal: number,
+  type: string,
+  clinic: string,
+  rep: string,
+}
 const ProviderSchema = new Schema({
   name: String,
   ytdTotal: Number,
@@ -41,7 +46,7 @@ const ReceiptSchema = new Schema({
   name: String,
 });
 
-module.exports = {
+export const models = {
   ClinicModel: mongoose.model('ClinicModel', ClinicSchema),
   ProviderModel: mongoose.model('ProviderModel', ProviderSchema),
   ReceiptModel: mongoose.model('ReceiptModel', ReceiptSchema),

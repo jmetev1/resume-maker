@@ -1,6 +1,7 @@
-const AWS = require('aws-sdk');
-const dotenv = require('dotenv');
-const fs = require('fs');
+import AWS from 'aws-sdk';
+import { PromiseResult } from 'aws-sdk/lib/request';
+import dotenv from 'dotenv';
+import fs from 'fs'
 
 dotenv.load();
 
@@ -12,7 +13,11 @@ AWS.config.update({
 const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
 const Bucket = process.env.EXPENSE_BUCKET;
 
-exports.getSignedUrl = async (filename) => {
+// return type of object with uploadUrl as string
+
+export const getSignedUrl = async (filename: string):
+  Promise<{ uploadURL: string, key: string }> => {
+  // exports.getSignedUrl = async(filename): ({ uploadUrl: string, key: string }) => {
   // Get signed URL from S3
   const key = filename + (Math.random() * 10000000);
   const s3Params = {
@@ -27,7 +32,7 @@ exports.getSignedUrl = async (filename) => {
   return ({ uploadURL, key });
 };
 
-exports.addPhoto = (name) => {
+export const addPhoto = (name): Promise<PromiseResult<AWS.S3.PutObjectOutput, AWS.AWSError>> => {
   const params = {
     Bucket: process.env.EXPENSE_BUCKET,
     Key: name,
@@ -38,7 +43,7 @@ exports.addPhoto = (name) => {
   return s3.putObject(params).promise();
 };
 
-exports.receipt = async (key) => {
+export const receipt = async (key) => {
   const params = {
     Bucket,
     Key: key,
