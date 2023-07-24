@@ -1,23 +1,16 @@
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const sgMail = require('@sendgrid/mail');
-
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import sgMail from '@sendgrid/mail';
+import fs from 'fs';
 dotenv.load();
-const fs = require('fs');
-
-let databaseError;
-
-const Models = require('./models');
-
+import { models } from './models';
+import type { Provider } from './models';
 const {
   ReceiptModel,
   VisitModel,
   ProviderModel,
   ClinicModel,
-  UserModel,
-  AttestModel,
-} = Models;
-
+  UserModel } = models;
 mongoose
   .connect(
     // `mongodb://${process.env.DBusername}:${process.env.DBPW}@ds127783.mlab.com:27783/poolmap`,
@@ -25,20 +18,20 @@ mongoose
     { connectTimeoutMS: 1000, useUnifiedTopology: true, useNewUrlParser: true }
   )
   .then(
-    (suc) => {
+    () => {
       console.log('db success');
     },
     (err) => {
-      databaseError = err;
       console.log('real database connection error', err);
     }
   );
 const db = mongoose.connection;
 db.on('error', (e) => {
-  databaseError = e;
+  // databaseError = e;
+  console.log('db error', e);
 });
 
-exports.sign = async (region, status, id) => {
+export const sign = async (region, status, id) => {
   const user = (await UserModel.find({ region }))[0];
   const attest = await user.attests.id(id);
   attest.signed = status;
@@ -46,49 +39,49 @@ exports.sign = async (region, status, id) => {
   return user.attests;
 };
 
-const getLastMonth = (today) => {
-  const thisMonth = today.getMonth();
-  let lastMonth;
-  if (thisMonth === 0) {
-    lastMonth = `11/${today.getFullYear() - 1}`;
-  } else {
-    lastMonth = `${today.getMonth() - 1}/${today.getFullYear()}`;
-  }
-  return lastMonth;
-};
+// const getLastMonth = (today) => {
+//   const thisMonth = today.getMonth();
+//   let lastMonth;
+//   if (thisMonth === 0) {
+//     lastMonth = `11/${today.getFullYear() - 1}`;
+//   } else {
+//     lastMonth = `${today.getMonth() - 1}/${today.getFullYear()}`;
+//   }
+//   return lastMonth;
+// };
 
-exports.getUser = async (region) => {
-  const users = await UserModel.find({ region });
-  let user;
-  throw new Error('repeat users');
-  // if (users.length > 1)
-  // else if (users.length === 0) user = await UserModel.create({ region });
-  // else [user] = users;
-  // const attests = [{ signed: 'failed', date: 'failed' }];
-  // try {
-  //   const lastMonth = getLastMonth(new Date());
-  //   const copyAttests = [...user.attests];
-  //   const alreadyExists = copyAttests.some(
-  //     (attest) => attest.date === lastMonth
-  //   );
-  //   if (!alreadyExists) {
-  //     const attestToAdd = await AttestModel.create({
-  //       date: lastMonth,
-  //       signed: false,
-  //     });
-  //     user.attests.addToSet(attestToAdd);
-  //     await user.save();
-  //   }
-  // } catch (e) {
-  //   user.attests = attests;
-  // }
-  // return user;
-};
+// export const getUser = async (region) => {
+//   // const users = await UserModel.find({ region });
+//   // let user;
+//   throw new Error('repeat users');
+//   // if (users.length > 1)
+//   // else if (users.length === 0) user = await UserModel.create({ region });
+//   // else [user] = users;
+//   // const attests = [{ signed: 'failed', date: 'failed' }];
+//   // try {
+//   //   const lastMonth = getLastMonth(new Date());
+//   //   const copyAttests = [...user.attests];
+//   //   const alreadyExists = copyAttests.some(
+//   //     (attest) => attest.date === lastMonth
+//   //   );
+//   //   if (!alreadyExists) {
+//   //     const attestToAdd = await AttestModel.create({
+//   //       date: lastMonth,
+//   //       signed: false,
+//   //     });
+//   //     user.attests.addToSet(attestToAdd);
+//   //     await user.save();
+//   //   }
+//   // } catch (e) {
+//   //   user.attests = attests;
+//   // }
+//   // return user;
+// };
 
-exports.addProvider = async (req) => ProviderModel.create(req);
+export const addProvider = async (req) => ProviderModel.create(req);
 
 // returns an object mapping clinics to providers.
-exports.providersByRep = async (rep) => {
+export const providersByRep = async (rep) => {
   const allProviders = await ProviderModel.find({ rep });
   return allProviders.reduce((acc, c) => {
     const { clinic } = c;
@@ -98,13 +91,13 @@ exports.providersByRep = async (rep) => {
   }, {});
 };
 
-exports.getClinic = async (rep) =>
+export const getClinic = async (rep) =>
   ClinicModel.find(rep === 'admin' ? {} : { rep });
 
-const allProvidersForRep = (rep) => ProviderModel.find({ rep });
+// const allProvidersForRep = (rep) => ProviderModel.find({ rep });
 
-exports.getTotalsByRep = async (rep) => {
-  const query = {};
+export const getTotalsByRep = async (rep) => {
+  const query: { rep?: string } = {};
   if (rep !== 'admin') query.rep = rep;
 
   const [repsProviders, repsClinics] = await Promise.all([
@@ -118,16 +111,18 @@ exports.getTotalsByRep = async (rep) => {
   }, {});
 
   const providersIDs = repsProviders.map((p) => p._id);
-  const totals = await this.totalsForProviders(providersIDs, clinicIDtoName);
+  const totals = await totalsForProviders(providersIDs, clinicIDtoName);
 
   const desiredReps = new Set(
     rep === 'admin' ? ['las', 'lan', 'msn', 'mss'] : [rep]
   );
 
-  return Object.values(totals).filter((total) => desiredReps.has(total.rep));
+  return Object.values(totals).filter((total: { rep: string }) => desiredReps.has(total.rep));
 };
 
-exports.totalsForProviders = async (providers, clinicIDtoName) => {
+export const totalsForProviders = async function (providers, clinicIDtoName?): Promise<{
+  [key: string]: Provider & { amount: number, clinicName?: string }
+}> {
   const year = new Date().getFullYear();
   const min = `${year}-01-01`;
   const max = `${year}-12-31`;
@@ -146,12 +141,12 @@ exports.totalsForProviders = async (providers, clinicIDtoName) => {
   }, {});
 
   const myProviders = await ProviderModel.find();
-  myProviders.forEach(({ name, _id, rep, clinic }) => {
+  myProviders.forEach(({ name: providerName, _id, rep, clinic }) => {
     const amount = spendingByDoctor[_id];
     if (amount != null) {
       spendingByDoctor[_id] = {
         amount,
-        name,
+        name: providerName,
         _id,
         rep,
         ...(clinicIDtoName && { clinicName: clinicIDtoName[clinic] }),
@@ -161,7 +156,7 @@ exports.totalsForProviders = async (providers, clinicIDtoName) => {
   return spendingByDoctor;
 };
 
-exports.addPhoto = (name) =>
+export const addPhoto = (name) =>
   ReceiptModel.create({
     name,
     img: {
@@ -170,7 +165,7 @@ exports.addPhoto = (name) =>
     },
   });
 
-exports.receipt = (_id) =>
+export const receipt = (_id) =>
   ReceiptModel.find({ _id }).then(([doc]) => {
     if (doc) {
       return {
@@ -181,9 +176,9 @@ exports.receipt = (_id) =>
     return Promise.reject(new Error('no mongo receipt found here'));
   });
 
-exports.addClinic = async (req) => ClinicModel.create(req);
+export const addClinic = async (req) => ClinicModel.create(req);
 
-exports.spendingByDoctor = async (rep, clinic) => {
+export const spendingByDoctor = async (rep, clinic) => {
   const query = rep === 'admin' ? {} : { rep };
   const year = new Date().getFullYear();
   const min = `${year}-01-01`;
@@ -213,13 +208,13 @@ exports.spendingByDoctor = async (rep, clinic) => {
   return spendingByDoctor;
 };
 
-exports.addVisit = async (body) => {
+export const addVisit = async (body) => {
   const { _id, providers } = await VisitModel.create(body);
   if (_id) {
     let emailRes;
-    this.totalsForProviders(providers)
+    totalsForProviders(providers)
       .then(totals => {
-        this.checkMaxAndEmail(body.rep, totals, body)
+        checkMaxAndEmail(body.rep, totals, body)
           .then(res => { emailRes = res; });
       });
     console.log(emailRes);
@@ -237,6 +232,8 @@ const emailByRep = {
   andrewtest: 'ayeates@physiciansgrouplaboratories.com',
   elyse: 'Ealford@providerschoicelab.com',
   // awiggin: 'a.wiggin+pglapp@icloud.com',
+  test: '',
+  jack: ''
 };
 
 const realReps = ['mss', 'msn', 'lan', 'las', 'awiggin', 'elyse'];
@@ -274,10 +271,11 @@ const setupEmail = (providers, rep, { clinicName, amountSpent }) =>
     return msg;
   });
 
-exports.checkMaxAndEmail = async (rep, spendingByDoctor, newVisit) => {
+export const checkMaxAndEmail = async (rep, spendingByDoctor, newVisit) => {
   const maxSpend = 350;
   const overLimit = [];
-  Object.entries(spendingByDoctor).forEach(([key, value]) => {
+  Object.entries(spendingByDoctor).forEach(function (spending: [string, { amount: number }]) {
+    const [key, value] = spending;
     if (value.amount > maxSpend) {
       overLimit.push([key, value]);
     }
@@ -290,15 +288,20 @@ exports.checkMaxAndEmail = async (rep, spendingByDoctor, newVisit) => {
 /* we stopped searching by rep so that we can return all for admin view. i think we sort it out on
  front end
 */
-exports.getVisits = async () =>
+export const getVisits = async () =>
   // const repToUse = rep === 'admin' ? {} : { rep };
   // console.log({ rep }, 'ronald');
   // return VisitModel.find(repToUse);
   VisitModel.find({});
 
-exports.getVisitsThisYear = async (rep) => {
+export const getVisitsThisYear = async (rep) => {
   const year = new Date().getFullYear();
-  const query = {
+  const query: {
+    date: {
+      $gte: string, $lte: string
+    }
+    rep?: string
+  } = {
     date: { $gte: `${year}-01-01`, $lte: `${year}-12-31` },
   };
   if (rep !== 'admin') query.rep = rep;
