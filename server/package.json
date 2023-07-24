@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "npm run build && node build/src/server",
+    "start": "node build/src/server",
     "prod": "NODE_ENV=PRODUCTION nodemon src/server",
     "buildrun": "npm run build && npm run prodauth",
     "build": "tsc -p tsconfig.json",
