@@ -46,10 +46,12 @@ app.use(
     secret: process.env.SESSION_SECRET,
     store,
     cookie: {
-      secure: false,
+      secure: true,
       httpOnly: false,
-      // sameSite: 'strict'// no browser works
-      sameSite: 'lax'
+      // sameSite: 'strict'// ff and chrome fail
+      // sameSite: 'lax'// ff and chrome fail
+      // sameSite: 'none' // chrome fails , ff works with secure false
+      sameSite: 'none' // chrome and ff fail with secure true locally
     },
     saveUninitialized: true,
     proxy: true, // if you do SSL outside of node.
