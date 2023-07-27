@@ -111,13 +111,20 @@ export const getTotalsByRep = async (rep) => {
   }, {});
 
   const providersIDs = repsProviders.map((p) => p._id);
+  // console.log('all providers', providersIDs.length)
   const totals = await totalsForProviders(providersIDs, clinicIDtoName);
 
   const desiredReps = new Set(
     rep === 'admin' ? ['las', 'lan', 'msn', 'mss'] : [rep]
   );
 
-  return Object.values(totals).filter((total: { rep: string }) => desiredReps.has(total.rep));
+  return Object.values(totals).filter((total: { rep: string }) => {
+    if (desiredReps.has(total.rep)) return true;
+    else {
+      return false;
+    }
+  }
+  );
 };
 
 export const totalsForProviders = async function (providers, clinicIDtoName?): Promise<{
@@ -127,7 +134,7 @@ export const totalsForProviders = async function (providers, clinicIDtoName?): P
   const min = `${year}-01-01`;
   const max = `${year}-12-31`;
   const visits = await VisitModel.find({
-    date: { $gte: min, $lte: max },
+    // date: { $gte: min, $lte: max },
     providers: {
       $in: providers,
     },
@@ -185,7 +192,7 @@ export const spendingByDoctor = async (rep, clinic) => {
   const max = `${year}-12-31`;
   const myVisitsThisYear = await VisitModel.find({
     ...query,
-    date: { $gte: min, $lte: max },
+    // date: { $gte: min, $lte: max },
     clinic: clinic || null,
   });
   const spendingByDoctor = myVisitsThisYear.reduce((acc, c) => {

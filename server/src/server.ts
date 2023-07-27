@@ -38,7 +38,7 @@ const cookie = {
   secure: !development,
   sameSite: development ? 'lax' : 'none',
 }
-
+console.log('cookie', cookie)
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN || 'https://expensehawk.com',
