@@ -130,9 +130,9 @@ export const getTotalsByRep = async (rep) => {
 export const totalsForProviders = async function (providers, clinicIDtoName?): Promise<{
   [key: string]: Provider & { amount: number, clinicName?: string }
 }> {
-  const year = new Date().getFullYear();
-  const min = `${year}-01-01`;
-  const max = `${year}-12-31`;
+  // const year = new Date().getFullYear();
+  // const min = `${year}-01-01`;
+  // const max = `${year}-12-31`;
   const visits = await VisitModel.find({
     // date: { $gte: min, $lte: max },
     providers: {
@@ -187,9 +187,9 @@ export const addClinic = async (req) => ClinicModel.create(req);
 
 export const spendingByDoctor = async (rep, clinic) => {
   const query = rep === 'admin' ? {} : { rep };
-  const year = new Date().getFullYear();
-  const min = `${year}-01-01`;
-  const max = `${year}-12-31`;
+  // const year = new Date().getFullYear();
+  // const min = `${year}-01-01`;
+  // const max = `${year}-12-31`;
   const myVisitsThisYear = await VisitModel.find({
     ...query,
     // date: { $gte: min, $lte: max },
