@@ -68,7 +68,7 @@ const idToOldUsername = (id): string => ({
   mss: 'mss'
 }[id] || id);
 
-app.post('/api/login', (req, res, next) => {
+app.post('/api/login', (req, res, _next) => {
   const oldUsername = idToOldUsername(req.body.username);
   const { jwtToken } = req.body;
   authentication(jwtToken).then(() => {
@@ -110,7 +110,8 @@ app.post('/api/sign', async (req, res) => {
   res.json(await sign(req.session.rep, status, id));
 });
 
-app.get('/api/visits', async (req, res) => {
+
+app.get('/api/visits', async (_req, res) => {
   const allVisits = await getVisits();
   res.json(allVisits);
 });

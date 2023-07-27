@@ -20,6 +20,7 @@ const authentication = async (accessToken) => {
 
     // req.user = data;
     const { UserAttributes } = data
+    console.log({ UserAttributes })
     // console.log(      UserAttributes)
     // next();
   } catch (error) {
