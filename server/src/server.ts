@@ -48,7 +48,8 @@ app.use(
     cookie: {
       secure: false,
       httpOnly: false,
-      sameSite: 'strict'
+      // sameSite: 'strict'// no browser works
+      sameSite: 'lax'
     },
     saveUninitialized: true,
     proxy: true, // if you do SSL outside of node.
