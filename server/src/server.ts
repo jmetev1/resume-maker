@@ -29,30 +29,28 @@ store.on('error', (error) => {
   console.log('error other', error);
 });
 
-const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'https://expensehawk.com',
-  optionsSuccessStatus: 200,
-  credentials: true,
-  preflightContinue: true,
-};
+
 
 app.set('port', process.env.PORT || 3000);
 app.set("trust proxy", 1); // trust first proxy
 
+const cookie = {
+  secure: !development,
+  sameSite: development ? 'lax' : 'none',
+}
+
 app.use(
-  cors(corsOptions),
+  cors({
+    origin: process.env.CORS_ORIGIN || 'https://expensehawk.com',
+    optionsSuccessStatus: 200,
+    credentials: true,
+    preflightContinue: true,
+  }),
   session({
     name: 'server-session-cookie-id',
     secret: process.env.SESSION_SECRET,
     store,
-    cookie: {
-      secure: true,
-      httpOnly: false,
-      // sameSite: 'strict'// ff and chrome fail
-      // sameSite: 'lax'// ff and chrome fail
-      // sameSite: 'none' // chrome fails , ff works with secure false
-      sameSite: 'none' // chrome and ff fail with secure true locally
-    },
+    cookie,
     saveUninitialized: true,
     proxy: true, // if you do SSL outside of node.
     resave: false,
