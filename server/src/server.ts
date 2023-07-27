@@ -37,6 +37,7 @@ const corsOptions = {
 };
 
 app.set('port', process.env.PORT || 3000);
+app.set("trust proxy", 1); // trust first proxy
 
 app.use(
   cors(corsOptions),
@@ -49,6 +50,7 @@ app.use(
       httpOnly: false,
     },
     saveUninitialized: true,
+    proxy: true, // if you do SSL outside of node.
     resave: false,
   }),
   fileupload(),
