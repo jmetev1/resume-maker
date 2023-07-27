@@ -8,6 +8,7 @@ import {
   MySelectField,
   MyTextInputField,
 } from './Fields';
+import { fetchWithCredentials } from './utils';
 
 const { prefill } = window.pglOptions;
 export default class AddProvider extends React.Component {
@@ -23,11 +24,11 @@ export default class AddProvider extends React.Component {
   submit = () => {
     const copy = { ...this.state };
     delete copy.allMyClinics;
-    fetch(url + 'provider', {
+    fetchWithCredentials(url + 'provider', {
       method: 'POST',
       body: JSON.stringify(copy),
       headers: { 'Content-Type': 'application/json' },
-    }).then(r => r.json());
+    })
   };
   componentDidMount() {
     getMyClinics().then(r => {
@@ -37,7 +38,7 @@ export default class AddProvider extends React.Component {
         newState.type = this.providerTypes[rando(4)];
         newState.clinic = r[rando(r.length)]._id;
       }
-      this.setState(newState, automatic ? this.submit : () => {});
+      this.setState(newState, automatic ? this.submit : () => { });
     });
   }
   addValue(key, val) {

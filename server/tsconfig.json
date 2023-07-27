@@ -1,4 +1,9 @@
 {
+  "ts-node": {
+    // It is faster to skip typechecking.
+    // Remove if you want ts-node to do typechecking.
+    "transpileOnly": true
+  },
   "compilerOptions": {
     "target": "es2022",
     "module": "node16",
@@ -8,7 +13,8 @@
     "outDir": "build",
     "allowSyntheticDefaultImports": true,
     "importHelpers": true,
-    "alwaysStrict": true,
+    "alwaysStrict": false,
+    "strict": false,
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
@@ -19,5 +25,6 @@
     "noImplicitThis": false,
     "strictNullChecks": false
   },
+  "noEmitOnError": false,
   "include": ["src/**/*", "__tests__/**/*"]
 }

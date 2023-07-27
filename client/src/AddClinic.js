@@ -3,6 +3,7 @@ import random from './random-name';
 import { url, automatic } from './url';
 import { SubmitButton, DevInfo, MyTextInputField } from './Fields';
 import { Link } from 'react-router-dom';
+import { fetchWithCredentials } from './utils';
 const { prefill } = window.pglOptions;
 
 export default class AddClinic extends React.Component {
@@ -16,11 +17,11 @@ export default class AddClinic extends React.Component {
   }
 
   submit = () => {
-    fetch(`${url}clinic`, {
+    fetchWithCredentials(`${url}clinic`, {
       method: 'POST',
       body: JSON.stringify(this.state),
       headers: { 'Content-Type': 'application/json' },
-    }).then(r => r.json());
+    })
   };
 
   componentDidMount() {

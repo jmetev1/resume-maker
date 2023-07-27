@@ -1,13 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-
 const app = express();
-
 dotenv.load();
 const development = process.env.NODE_ENV === 'development';
 const reload = development ? require('reload') : 'n';
-
 import http from 'http';
 import bodyParser from 'body-parser';
 import session from 'express-session';
@@ -16,10 +13,9 @@ const MongoDBStore = MongoSession(session);
 import fileupload from 'express-fileupload';
 import { getSignedUrl, receipt } from './aws';
 import { addClinic, addProvider, addVisit, getClinic, getTotalsByRep, getVisits, providersByRep, sign, spendingByDoctor } from './db';
-
+import authentication from './cognito';
 
 const store = new MongoDBStore({
-  // uri: `mongodb://${process.env.DBusername}:${process.env.DBPW}@ds127783.mlab.com:27783/poolmap`,
   uri: `mongodb+srv://${process.env.DBusername}:${process.env.DBPW}@poolmap.ppvei.mongodb.net/poolmap?retryWrites=true&w=majority`,
   databaseName: 'poolmap',
   collection: 'mySessions',
@@ -35,23 +31,30 @@ store.on('error', (error) => {
 
 const corsOptions = {
   origin: process.env.CORS_ORIGIN || 'https://expensehawk.com',
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+  optionsSuccessStatus: 200,
+  credentials: true,
+  preflightContinue: true,
 };
-console.log({ corsOptions });
+
 app.set('port', process.env.PORT || 3000);
-app.use(cors(corsOptions));
+
 app.use(
+  cors(corsOptions),
   session({
     name: 'server-session-cookie-id',
     secret: 'my express secret',
     store,
+    cookie: {
+      secure: false,
+      httpOnly: false,
+    },
     saveUninitialized: true,
     resave: false,
   }),
   fileupload(),
   bodyParser.json()
 );
-app.get('/api/logout', cors(), (req, res) => {
+app.get('/api/logout', (req, res) => {
   req.session.rep = null;
   res.send(JSON.stringify('ok'));
 });
@@ -65,22 +68,31 @@ const idToOldUsername = (id): string => ({
   mss: 'mss'
 }[id] || id);
 
-app.post('/api/login', cors(), async (req, res) => {
+app.post('/api/login', (req, res, next) => {
   const oldUsername = idToOldUsername(req.body.username);
-  req.session.rep = oldUsername;
-  res.json(true);
-});
+  const { jwtToken } = req.body;
+  authentication(jwtToken).then(() => {
+
+    req.session.rep = oldUsername;
+    res.json(true);
+  }).catch((err) => {
+    console.log('err', err);
+    res.status(401).json(false);
+  });
+})
 
 app.use(
-  function isAuthorizedMiddleware(req, res, next) {
+  function autho(req, res, next) {
     const rep = req?.session?.rep;
-    if (rep) {
-      // console.log(57, 'user:', rep)
+    if (req.method === 'OPTIONS') {
+      return next()
+    }
+    else if (rep) {
+      return next()
     } else {
-      // console.log(67, 'no rep!')
+      console.log(67, 'no rep!')
       return res.status(401).send({ message: 'Unauthorized' });
     }
-    return next();
   }
 );
 
@@ -98,25 +110,20 @@ app.post('/api/sign', async (req, res) => {
   res.json(await sign(req.session.rep, status, id));
 });
 
-app.options('/api/visit', cors());
-
-app.get('/api/visits', cors(), async (_req, res) => {
+app.get('/api/visits', async (req, res) => {
   const allVisits = await getVisits();
   res.json(allVisits);
 });
 
-app.options('/api/clinic', cors());
-
-app.options('/api/provider', cors());
-app.get('/api/getproviders', cors(), async (req, res) => {
+app.get('/api/getproviders', async (req, res) => {
   res.json(await providersByRep(req.session.rep));
 });
 
-app.get('/api/getSpendingByDoctor/:clinicID', cors(), async (req, res) => {
+app.get('/api/getSpendingByDoctor/:clinicID', async (req, res) => {
   res.json(await spendingByDoctor(req.session.rep, req.params.clinicID));
 });
 
-app.post('/api/provider', cors(), async ({ body, ...rest }, res) => {
+app.post('/api/provider', async ({ body, ...rest }, res) => {
   res.json(
     await addProvider({
       ...body,
@@ -126,7 +133,7 @@ app.post('/api/provider', cors(), async ({ body, ...rest }, res) => {
 });
 
 app.post('/api/getUploadURL', async ({ body }, res, _next) => {
-  console.log({ body });
+  // console.log({ body });
   getSignedUrl(body.filename).then((url) => {
     res.json({ url });
   });
@@ -174,7 +181,7 @@ app.get('/api/receipt/:receiptID', async (req, res, next) => {
     .catch(next);
 });
 
-app.post('/api/visit', cors(), async (req, res) => {
+app.post('/api/visit', async (req, res) => {
   const addVisitResult = await addVisit({
     ...req.body,
     rep: req.session.rep,
@@ -183,7 +190,7 @@ app.post('/api/visit', cors(), async (req, res) => {
   res.json(addVisitResult);
 });
 
-app.post('/api/clinic', cors(), async (req, res) =>
+app.post('/api/clinic', async (req, res) =>
   res.json(
     await addClinic({
       ...req.body,
@@ -192,7 +199,7 @@ app.post('/api/clinic', cors(), async (req, res) =>
   )
 );
 
-app.get('/api/clinic', cors(), async (req, res) => {
+app.get('/api/clinic', async (req, res) => {
   const allClinics = await getClinic(req.session.rep);
   // console.log({ allClinics });
   res.send(JSON.stringify(allClinics));
@@ -234,5 +241,5 @@ if (development) {
     console.log(`Web server listening on port ${app.get('port')}`);
   });
 }
-
+// adminGetUser()
 module.exports = app;

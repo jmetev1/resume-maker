@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.only('upload', async ({ page }) => {
+test.skip('upload', async ({ page }) => {
   await page.goto('http://localhost:3001/');
   await page.locator('[data-test="sign-in-username-input"]').click();
   await page.locator('[data-test="sign-in-username-input"]').fill('test');

@@ -8,8 +8,9 @@
     "dev": "PORT=3001 NODE_OPTIONS='--openssl-legacy-provider=true' node scripts/start.js",
     "fresh": "rm -rf node_modules && npm i",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "test": "npx playwright test --headed",
-    "prod-serve": "PORT=3001 serve -s build"
+    "test": "npx playwright test --headed --workers=1",
+    "prod-serve": "PORT=3001 serve -s build",
+    "lint": "eslint src/**/*.js"
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^0.2.34",
@@ -28,7 +29,6 @@
     "camelcase": "^5.2.0",
     "case-sensitive-paths-webpack-plugin": "2.2.0",
     "connect-mongodb-session": "^2.2.0",
-    "cors": "^2.8.5",
     "css-loader": "2.1.1",
     "dotenv": "6.2.0",
     "dotenv-expand": "5.1.0",
@@ -151,6 +151,7 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
+  "proxy": "http://localhost:3000",
   "engines": {
     "node": ">=10.0"
   },

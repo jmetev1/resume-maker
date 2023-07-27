@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { url } from './url';
 import { Button, Dialog, TextInputField } from 'evergreen-ui';
+import { fetchWithCredentials } from './utils';
 /*eslint-disable quotes*/
 
 export const OneAttest = ({ date, signed, children, i }) => {
@@ -18,26 +19,26 @@ export const OneAttest = ({ date, signed, children, i }) => {
         hasHeader={false}
       >
         {({ close }) => {
-          console.log('inputname',inputName.trim().toLowerCase(), employees)
           return (
-          <>
-            {text}
-            <br />
-            <div style={{ display: 'flex' }}>
-              <div style={sStyle}>/s/</div>
-              <TextInputField
-                value={inputName}
-                onChange={({ target }) => setInputName(target.value)}
-              />
-              {employees.includes(inputName.trim().toLowerCase())
-                ? children
-                : 'Please fill in your full name to complete'}
-            </div>
-            <Button height={40} onClick={close}>
-              Close without signing
-            </Button>
-          </>
-        )}}
+            <>
+              {text}
+              <br />
+              <div style={{ display: 'flex' }}>
+                <div style={sStyle}>/s/</div>
+                <TextInputField
+                  value={inputName}
+                  onChange={({ target }) => setInputName(target.value)}
+                />
+                {employees.includes(inputName.trim().toLowerCase())
+                  ? children
+                  : 'Please fill in your full name to complete'}
+              </div>
+              <Button height={40} onClick={close}>
+                Close without signing
+              </Button>
+            </>
+          )
+        }}
       </Dialog>
       {months[month]} {year}
       <div>
@@ -77,15 +78,14 @@ const Home = ({ user }) => {
   const [attests, setAttests] = useState(user.attests);
 
   const sign = (id, date) => {
-    fetch(`${url}sign`, {
+    fetchWithCredentials(`${url}sign`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ date, id, status: true }),
     })
-      .then((res) => res.json())
       .then(setAttests);
   };
-  const needToSign =[]
+  const needToSign = []
   // const needToSign = attests.filter(({ signed }) => !signed);
 
   return needToSign.length ? (

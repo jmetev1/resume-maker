@@ -1,7 +1,6 @@
 import React, { StrictMode } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import { url } from './url';
 import { ErrorBoundary } from './ErrorBoundary';
 import Auth from './Auth';
 
@@ -9,7 +8,6 @@ import Auth from './Auth';
 const dev = process.env.NODE_ENV === 'development';
 
 if (!window.pglOptions) window.pglOptions = {};
-// const userPromise = fetch(url + 'login', { credentials: 'include' });
 
 for (let [key, value] of Object.entries({
   dev,
@@ -36,12 +34,12 @@ ReactDOM.render(
   document.getElementById('root')
 );
 
-if (dev) {
-  const script = document.createElement('script');
-  script.src = 'reload/reload.js';
-  script.id = 'reload';
-  document.body.appendChild(script);
-}
+// if (dev) {
+//   const script = document.createElement('script');
+//   script.src = 'reload/reload.js';
+//   script.id = 'reload';
+//   document.body.appendChild(script);
+// }
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: http://bit.ly/CRA-PWA

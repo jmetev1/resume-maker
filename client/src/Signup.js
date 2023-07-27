@@ -6,13 +6,14 @@ import { url } from './url';
 import { Err, MyTextInputField } from './Fields';
 import { LoginSchema, SignupSchema } from './Validation';
 import logo from './image/pnglogo.png';
+import { fetchWithCredentials } from './utils';
 
 const dev = process.env.NODE_ENV === 'development';
 
 const Signup = () => {
   const submit = values => {
     values.newUser = true;
-    fetch(`${url}login`, {
+    fetchWithCredentials(`${url}login`, {
       method: 'POST',
       body: JSON.stringify(values),
       headers: { 'Content-Type': 'application/json' },

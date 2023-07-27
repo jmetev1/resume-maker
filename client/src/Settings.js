@@ -3,6 +3,7 @@ import { Pane, Switch, Label, Button } from 'evergreen-ui';
 import './App.css';
 import { OneAttest } from './Home';
 import { url } from './url';
+import { fetchWithCredentials } from './utils';
 
 export default class Settings extends React.Component {
   constructor() {
@@ -16,11 +17,11 @@ export default class Settings extends React.Component {
     };
   }
   unSign(id, date) {
-    fetch(`${url}sign`, {
+    fetchWithCredentials(`${url}sign`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ date, id, status: false }),
-    }).then((res) => res.json());
+    })
   }
   render() {
     const { updateOptions, ...rest } = this.state;

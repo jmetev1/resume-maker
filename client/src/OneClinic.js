@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { url } from './url';
 import { MySelectField, OneVisit } from './Fields';
+import { fetchWithCredentials } from './utils';
 
 export const OneClinic = ({ clinicID, visits = [], clinicName }) => {
   const [spending, updateSpending] = useState({});
@@ -12,9 +13,8 @@ export const OneClinic = ({ clinicID, visits = [], clinicName }) => {
   useEffect(() => updateVisit({}), [clinicID]);
 
   useEffect(() => {
-    fetch(`${url}getSpendingByDoctor/${clinicID}`)
-      .then(d => d.json())
-      .then(updateSpending);
+    fetchWithCredentials(`${url}getSpendingByDoctor/${clinicID}`)
+      .then(updateSpending)
     // .then(a => updateVisitByID("5ddc8639e8705d24251d60c3"));
   }, [clinicID]);
   const nameAmountPairs = Object.values(spending).sort(

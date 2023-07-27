@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { url } from './url';
 import { Button, Dialog, TextInputField } from 'evergreen-ui';
+import { fetchWithCredentials } from './utils';
 /*eslint-disable quotes*/
 
 export const OneAttest = ({ date, signed, children, i }) => {
@@ -77,12 +78,11 @@ const Home = ({ user }) => {
   const [attests, setAttests] = useState(user.attests);
 
   const sign = (id, date) => {
-    fetch(`${url}sign`, {
+    fetchWithCredentials(`${url}sign`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ date, id, status: true }),
     })
-      .then((res) => res.json())
       .then(setAttests);
   };
   const needToSign = []

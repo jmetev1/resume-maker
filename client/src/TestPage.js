@@ -14,6 +14,7 @@ import {
 import { Formik, Field, ErrorMessage } from 'formik';
 import { AddVisitSchema } from './Validation';
 import { Link } from 'react-router-dom';
+import { fetchWithCredentials } from './utils';
 
 export default class AddVisit extends React.Component {
   state = {
@@ -24,20 +25,20 @@ export default class AddVisit extends React.Component {
 
   componentDidMount() {
     getMyClinics().then((allMyClinics) => this.setState({ allMyClinics }));
-    fetch(url + 'getproviders')
-      .then((r) => r.json())
+    fetchWithCredentials(url + 'getproviders')
+
       .then((providersByClinic) => {
         this.setState({ providersByClinic });
       });
   }
   getPresignedUrl = () =>
-    fetch(
-      url + 'getUploadURL').then((r) => r.json())
+    fetchWithCredentials(
+      url + 'getUploadURL')
       .then((res) => ({ key: res?.url?.key, url: res?.url?.uploadURL }))
 
   submit = (values, { resetForm }) => {
     values.amountSpent = Number(Number(values.amountSpent).toFixed(2));
-    fetch(url + 'visit', {
+    fetchWithCredentials(url + 'visit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -48,7 +49,6 @@ export default class AddVisit extends React.Component {
             ?.name || 'name not found',
       }),
     })
-      .then((res) => res.json())
       .then((res) => {
         if (window.pglOptions.dev && Array.isArray(res.email)) {
           res.email.forEach(console.table);
@@ -64,7 +64,7 @@ export default class AddVisit extends React.Component {
     const { key, url } = uploadDetails
     console.log('Upload receipt', { url, blob });
     try {
-      await fetch(url, {
+      await fetchWithCredentials(url, {
         method: 'PUT',
         body: blob
       })

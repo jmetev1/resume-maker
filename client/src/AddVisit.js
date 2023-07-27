@@ -15,7 +15,7 @@ import {
 import { Formik, Field, ErrorMessage } from 'formik';
 import { AddVisitSchema } from './Validation';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import { fetchWithCredentials } from './utils';
 
 export default class AddVisit extends React.Component {
   state = {
@@ -26,26 +26,26 @@ export default class AddVisit extends React.Component {
 
   componentDidMount() {
     getMyClinics().then((allMyClinics) => this.setState({ allMyClinics }));
-    fetch(url + 'getproviders')
-      .then((r) => r.json())
+    fetchWithCredentials(url + 'getproviders')
       .then((providersByClinic) => {
         this.setState({ providersByClinic });
       });
   }
   getPresignedUrl = (filename) =>
-    axios({
-      url: url + 'getUploadURL',
+    fetchWithCredentials(url + 'getUploadURL', {
       method: 'post',
       headers: { 'Content-Type': 'application/json' },
-      data: JSON.stringify({ filename })
+      body: JSON.stringify({ filename })
     })
-      .then(({ data }) => {
+      .then(data => {
+
+        // console.log('result of upload url', rest)
         return { key: data?.url?.key, url: data?.url?.uploadURL }
       })
 
   submit = (values, { resetForm }) => {
     values.amountSpent = Number(Number(values.amountSpent).toFixed(2));
-    fetch(url + 'visit', {
+    fetchWithCredentials(url + 'visit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -56,7 +56,6 @@ export default class AddVisit extends React.Component {
             ?.name || 'name not found',
       }),
     })
-      .then((res) => res.json())
       .then((res) => {
         if (window.pglOptions.dev && Array.isArray(res.email)) {
           res.email.forEach(console.table);
@@ -83,7 +82,7 @@ export default class AddVisit extends React.Component {
 
       // console.log('success')
     } catch (e) {
-      // console.log('error', e)
+      console.log('error', e)
       this.setState({
         receiptUpload:
           'failed but you may continue submitting without upload.',

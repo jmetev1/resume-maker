@@ -3,6 +3,7 @@ import { url } from './url';
 import { Wrapper, SelectClinic } from './Fields';
 import { OneClinic } from './OneClinic';
 import { TabNavigation, Tab } from 'evergreen-ui';
+import { fetchWithCredentials } from './utils';
 
 const PastVisits = () => {
   const [showByClinic, setShowByClinic] = useState(true);
@@ -36,8 +37,7 @@ const PastVisits = () => {
 const PastVisitsBySpending = () => {
   const [providers, setProviders] = useState([]);
   useEffect(() => {
-    fetch(url + 'totalsForProviders')
-      .then(res => res.json())
+    fetchWithCredentials(url + 'totalsForProviders')
       .then(setProviders);
   }, []);
   return (
@@ -56,8 +56,7 @@ const PastVisitsBySpending = () => {
 class PastVisitsByClinic extends React.Component {
   state = {};
   componentDidMount() {
-    Promise.all(['visits', 'clinic'].map(type => fetch(url + type)))
-      .then(res => Promise.all(res.map(r => r.json())))
+    Promise.all(['visits', 'clinic'].map(type => fetchWithCredentials(url + type)))
       .then(([allVisits, clinics]) => {
         const byClinic = allVisits.reduce((a, v) => {
           const { clinic } = v;
@@ -85,8 +84,8 @@ class PastVisitsByClinic extends React.Component {
             clinics={clinicsThatHaveVisits}
           />
         ) : (
-            'Loading'
-          )}
+          'Loading'
+        )}
       </Wrapper>
     );
   }

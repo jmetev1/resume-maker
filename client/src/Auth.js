@@ -4,6 +4,7 @@ import { AmplifyAuthenticator, AmplifySignOut } from '@aws-amplify/ui-react';
 import { AuthState, onAuthUIStateChange } from '@aws-amplify/ui-components';
 import App from './App';
 import { url } from './url';
+import { fetchWithCredentials } from './utils';
 
 const region = 'us-east-2';
 const userPoolId = 'us-east-2_JTfbOx7IW';
@@ -21,27 +22,31 @@ const Auth = () => {
   const [authState, setAuthState] = React.useState();
   const [user, setUser] = React.useState();
 
+  let isMounted = true;
   React.useEffect(() => {
     onAuthUIStateChange((nextAuthState, authData) => {
       setAuthState(nextAuthState);
-
-      if (authData) {
-        fetch(`${url}login`, {
+      if (authData && isMounted) {
+        const { signInUserSession } = authData;
+        const jwtToken = signInUserSession.accessToken.jwtToken;
+        fetchWithCredentials(`${url}login`, {
           method: 'POST',
-          body: JSON.stringify({ username: authData.username }),
+          body: JSON.stringify({
+            username: authData.username,
+            jwtToken
+          }),
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
         })
-          .then((r) => r.json())
+
           .then((loginResult) => {
             if (loginResult) setUser(authData)
             else throw new Error('did not get true from post to login instead got', loginResult)
-          }).catch(error => {
-            console.log('cors problem probably?', error)
-          });
+          })
       }
-
     });
-  }, []);
+    return () => isMounted = false;
+  });
 
   return authState === AuthState.SignedIn && user ? (
     <div className="App">

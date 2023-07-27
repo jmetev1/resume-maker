@@ -186,7 +186,7 @@ export const Header = ({ user }) => {
     <Button style={{ flex: '1 1 33%' }} height="36" {...props} />
   );
   const style = { margin: 'auto' };
-  const logout = () => fetch(url + 'logout').then(() => location.reload()); //eslint-disable-line
+  const logout = () => fetchWithCredentials(url + 'logout').then(() => location.reload()); //eslint-disable-line
 
   return (
     <nav style={{ display: 'flex', flexWrap: 'wrap' }}>
