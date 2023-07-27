@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import sgMail from '@sendgrid/mail';
+// import sgMail from '@sendgrid/mail';
 import fs from 'fs';
 dotenv.load();
 import { models } from './models';
@@ -242,14 +242,14 @@ const j = 'a.wiggin+pglapp@icloud.com';
 emailByRep.test = j;
 emailByRep.jack = j;
 
-const sendEmail = msg => {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  sgMail
-    .send(msg)
-    .then(
-      res => console.log(`Message sent with ${res}`),
-      error => console.log(`Failed to send sendgrid email with ${error}`, error.response ? error.response.body : ''));
-};
+// const sendEmail = msg => {
+//   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+//   sgMail
+//     .send(msg)
+//     .then(
+//       res => console.log(`Message sent with ${res}`),
+//       error => console.log(`Failed to send sendgrid email with ${error}`, error.response ? error.response.body : ''));
+// };
 
 const setupEmail = (providers, rep, { clinicName, amountSpent }) =>
   providers.map(async (ar) => {
