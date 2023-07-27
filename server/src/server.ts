@@ -43,11 +43,12 @@ app.use(
   cors(corsOptions),
   session({
     name: 'server-session-cookie-id',
-    secret: 'my express secret',
+    secret: process.env.SESSION_SECRET,
     store,
     cookie: {
       secure: false,
       httpOnly: false,
+      sameSite: 'strict'
     },
     saveUninitialized: true,
     proxy: true, // if you do SSL outside of node.

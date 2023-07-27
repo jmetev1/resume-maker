@@ -5,7 +5,7 @@ const COGNITO_URL = `https://cognito-idp.us-east-2.amazonaws.com/`;
 const authentication = async (accessToken) => {
   try {
     // console.log({ accessToken })
-    const { data } = await axios.post(
+    await axios.post(
       COGNITO_URL,
       {
         AccessToken: accessToken
@@ -19,8 +19,8 @@ const authentication = async (accessToken) => {
     )
 
     // req.user = data;
-    const { UserAttributes } = data
-    console.log({ UserAttributes })
+    // const { UserAttributes } = data
+    // console.log({ UserAttributes })
     // console.log(      UserAttributes)
     // next();
   } catch (error) {

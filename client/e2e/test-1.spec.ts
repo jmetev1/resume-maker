@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test('login fail', async ({ page }) => {
-  await page.goto('http://localhost:3001/');
+  await page.goto('/');
   await page.keyboard.press('Tab');
 
   await page.locator('[data-test="sign-in-username-input"]').fill('test');
