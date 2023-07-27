@@ -4,6 +4,7 @@ import { Button, Dialog, TextInputField } from 'evergreen-ui';
 import { fetchWithCredentials } from './utils';
 /*eslint-disable quotes*/
 
+
 export const OneAttest = ({ date, signed, children, i }) => {
   const [month, year] = date.split('/');
   const [show, setShow] = useState(false);
@@ -76,7 +77,7 @@ const employees = [
 
 const Home = ({ user }) => {
   const [attests, setAttests] = useState(user.attests);
-
+  console.log('buid time', process.env.REACT_APP_BUILD_TIME)
   const sign = (id, date) => {
     fetchWithCredentials(`${url}sign`, {
       method: 'POST',

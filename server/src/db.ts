@@ -267,7 +267,7 @@ const setupEmail = (providers, rep, { clinicName, amountSpent }) =>
       msg.subject = 'Exceeded provider spending limit';
       msg.to.push('ayeates@physiciansgrouplaboratories.com');
     }
-    await sendEmail(msg);
+    // await sendEmail(msg);
     return msg;
   });
 

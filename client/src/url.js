@@ -7,7 +7,6 @@ dotenv.load();
 // export const url = "http://pglebapp.mqhhuyuruj.us-east-2.elasticbeanstalk.com/"
 
 const dev = process.env.NODE_ENV === 'development';
-console.log({ process: process.env })
 // export const url = dev ? '/api/' : 'https://goldfish-app-2-kbthc.ondigitalocean.app/api/'
 
 //works
