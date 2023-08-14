@@ -1,5 +1,6 @@
 import { Pane, TextInputField, Textarea } from 'evergreen-ui';
 import { Field, Formik } from 'formik';
+import { baseUrl } from './utils';
 
 export const Create = () => {
 
@@ -8,7 +9,7 @@ export const Create = () => {
   ) => {
     try {
       console.log({ values })
-      const response = await fetch('http://localhost:3000/api/job', {
+      const response = await fetch(baseUrl + 'job', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values)
