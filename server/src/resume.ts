@@ -48,6 +48,7 @@ export const createJob = async (req, res, _next) => {
     console.log(e)
   }
 }
+// @ts-ignore
 const autoCreate = () => {
   setTimeout(() => {
     createJob({

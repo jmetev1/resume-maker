@@ -75,7 +75,7 @@ const idToOldUsername = (id): string => ({
 
 app.post('/api/job', createJob)
 
-app.get('/api/jobs', async (req, res, _next) => {
+app.get('/api/jobs', async (_, res, _next) => {
   getJobs().then((job) => {
     // console.log("got job", job)
     res.json(job);
