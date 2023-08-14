@@ -46,6 +46,13 @@ const ReceiptSchema = new Schema({
   name: String,
 });
 
+const JobSchema = new Schema({
+  id: String,
+  myUrl: String,
+  jobDescription: String,
+  jdUrl: String,
+})
+
 export const models = {
   ClinicModel: mongoose.model('ClinicModel', ClinicSchema),
   ProviderModel: mongoose.model('ProviderModel', ProviderSchema),
@@ -53,4 +60,5 @@ export const models = {
   VisitModel: mongoose.model('VisitModel', VisitSchema),
   UserModel: mongoose.model('UserModel', UserSchema),
   AttestModel: mongoose.model('AttestModel', AttestSchema),
+  JobModel: mongoose.model('JobModel', JobSchema),
 };

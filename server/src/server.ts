@@ -14,6 +14,7 @@ import fileupload from 'express-fileupload';
 import { getSignedUrl, receipt } from './aws';
 import { addClinic, addProvider, addVisit, getClinic, getTotalsByRep, getVisits, providersByRep, sign, spendingByDoctor } from './db';
 import authentication from './cognito';
+import { createJob, deleteJob, getJob, getJobs } from './resume';
 
 const store = new MongoDBStore({
   uri: `mongodb+srv://${process.env.DBusername}:${process.env.DBPW}@poolmap.ppvei.mongodb.net/poolmap?retryWrites=true&w=majority`,
@@ -41,7 +42,7 @@ const cookie = {
 console.log('cookie', cookie)
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || 'https://expensehawk.com',
+    origin: process.env.CORS_ORIGIN || ['https://expensehawk.com', 'https://jacques-m.com'],
     optionsSuccessStatus: 200,
     credentials: true,
     preflightContinue: true,
@@ -72,6 +73,41 @@ const idToOldUsername = (id): string => ({
   mss: 'mss'
 }[id] || id);
 
+app.post('/api/job', createJob)
+
+app.get('/api/jobs', async (req, res, _next) => {
+  getJobs().then((job) => {
+    // console.log("got job", job)
+    res.json(job);
+  }).catch((err) => {
+    console.log('err', err);
+    res.status(401).json(false);
+  })
+})
+// endpoint to delete jobs
+app.delete('/api/job/:id', async (req, res, _next) => {
+
+  console.log("delete job", req.params.id)
+  deleteJob(req.params.id).then((job) => {
+    // console.log("got job", job)
+    res.json(job);
+  }).catch((err) => {
+    console.log('err', err);
+    res.status(401).json(false);
+  })
+})
+
+app.get('/api/job/:myUrl', async (req, res, _next) => {
+  getJob(req.params.myUrl).then((job) => {
+    console.log("got job", job)
+    res.json(job);
+  }).catch((err) => {
+    console.log('err', err);
+    res.status(401).json(false);
+  })
+})
+
+
 app.post('/api/login', (req, res, _next) => {
   const oldUsername = idToOldUsername(req.body.username);
   const { jwtToken } = req.body;
@@ -88,6 +124,7 @@ app.post('/api/login', (req, res, _next) => {
 app.use(
   function autho(req, res, next) {
     const rep = req?.session?.rep;
+    console.log('method', req.method, req.url,)
     if (req.method === 'OPTIONS') {
       return next()
     }
