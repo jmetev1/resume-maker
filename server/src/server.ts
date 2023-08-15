@@ -14,23 +14,17 @@ import fileupload from 'express-fileupload';
 import { getSignedUrl, receipt } from './aws';
 import { addClinic, addProvider, addVisit, getClinic, getTotalsByRep, getVisits, providersByRep, sign, spendingByDoctor } from './db';
 import authentication from './cognito';
-import { createJob, deleteJob, getJob, getJobs } from './resume';
+import { deleteJob, getJob, getJobs, makeResume } from './resume-route';
 
 const store = new MongoDBStore({
   uri: `mongodb+srv://${process.env.DBusername}:${process.env.DBPW}@poolmap.ppvei.mongodb.net/poolmap?retryWrites=true&w=majority`,
   databaseName: 'poolmap',
   collection: 'mySessions',
-},
-  (err) => {
-    console.log(' session store err', err);
-  }
-);
+}, (err) => { console.log(' session store err', err); });
 
 store.on('error', (error) => {
   console.log('error other', error);
 });
-
-
 
 app.set('port', process.env.PORT || 3000);
 app.set("trust proxy", 1); // trust first proxy
@@ -73,7 +67,8 @@ const idToOldUsername = (id): string => ({
   mss: 'mss'
 }[id] || id);
 
-app.post('/api/job', createJob)
+app.post('/api/generate-resume', makeResume)
+// app.ge('/api/generate-resume', makeResume)
 
 app.get('/api/jobs', async (_, res, _next) => {
   getJobs().then((job) => {

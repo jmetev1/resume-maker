@@ -1,34 +1,50 @@
 import { Pane, TextInputField, Textarea } from 'evergreen-ui';
 import { Field, Formik } from 'formik';
-import { baseUrl } from './utils';
+import { baseUrl, realJob } from './utils';
+import { useReducer } from 'react';
+// import { render } from './pdf-maker';
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'update':
+      return { ...state, ...action.payload }
+    default:
+      return state
+  }
+}
 
 export const Create = () => {
 
+  const [state, dispatch] = useReducer(reducer, { coverLetter: '' })
+  const { coverLetter } = state
   const submit = async (values
-    // , setSubmitting
   ) => {
     try {
-      console.log({ values })
-      const response = await fetch(baseUrl + 'job', {
+      const response = await fetch(baseUrl + 'generate-resume', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values)
       })
       const data = await response.json()
-      console.log(data)
-      const { myUrl } = data
-      const url = new URL("../" + myUrl, window.location.href);
-      console.log({ url, myUrl })
+      console.log('made it', data)
+      const { myUrl, coverLetter } = data
+      dispatch({ type: 'update', payload: { coverLetter } })
+      // const url = new URL("../" + myUrl, window.location.href);
       // window.location.href = url.href;
     }
     catch (error) {
       console.log(error)
     }
   }
-
+  const devInitalValues = {
+    jobDescription: realJob,
+    jdUrl: 'http://jobs.polymer.co/violet-labs/28087'
+  }
   return (
     <>
-      {/* <Header user={username} /> */}
+      <a href={baseUrl + "generate-resume"} > Download File</a >
+
+      <Textarea name="cover letter" value={coverLetter} />
       <Pane
         paddingTop={15}
         paddingBottom={100}
@@ -39,7 +55,7 @@ export const Create = () => {
         <Pane width="90vw" border="default">
 
           <Formik
-            initialValues={{ jobDescription: '', jdUrl: '' }}
+            initialValues={import.meta.env.PROD ? { jobDescription: '', jdUrl: '' } : devInitalValues}
             // validate={values => ({})}
             onSubmit={submit}
           >

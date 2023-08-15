@@ -51,6 +51,7 @@ const JobSchema = new Schema({
   myUrl: String,
   jobDescription: String,
   jdUrl: String,
+  coverLetter: String,
 })
 
 export const models = {

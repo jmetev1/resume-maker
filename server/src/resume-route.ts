@@ -1,8 +1,9 @@
+import fs from 'fs'
+import { render } from './pdf-maker';
 import axios from "axios";
 import { models } from "./models";
-import { resume, testJob, first, second, third } from './test-job';
+import { resume, first, second, third } from './test-job';
 const { JobModel } = models;
-
 const getRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const getKey = () => `${getRandom(first)}-${getRandom(second)}-${getRandom(third)}`
 
@@ -12,9 +13,8 @@ export const getJob = async (myUrl) => JobModel.findOne({ myUrl })
 // func to delete job
 export const deleteJob = async (id) => JobModel.deleteOne({ _id: id })
 
-export const createJob = async (req, res, _next) => {
+export const makeResume = async (req, res, _next) => {
   const { jobDescription, jdUrl, } = req.body;
-  // console.log({ jobDescription, jdUrl, })
   const url = 'https://api.openai.com/v1/chat/completions'
   const stuff = {
     max_tokens: 400,
@@ -32,32 +32,42 @@ export const createJob = async (req, res, _next) => {
     ],
   }
   try {
-    const { data } = await axios.post(url, stuff, { headers: { Authorization: `Bearer ${process.env.OPENAI_API}` } })
-    data.choices.forEach((choice) => {
-      console.log(choice)
-    })
-    const result = await JobModel.create({
-      jobDescription,
-      jdUrl,
-      myUrl: getKey()
-    });
-    console.log({ result })
-    res.json(result);
+    // const { data } = await axios.post(url, stuff, { headers: { Authorization: `Bearer ${process.env.OPENAI_API}` } })
+    // data.choices.forEach((choice) => {
+    //   console.log(choice)
+    // })
+    // const result = await JobModel.create({
+    //   jobDescription,
+    //   jdUrl,
+    //   myUrl: getKey(),
+    //   coverLetter: data.choices[0].message.content
+    // });
+    // console.log({ result })
+    res.setHeader('Content-type', 'application/pdf');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    const buf = await render();
+    const str = buf.toString()
+    fs.writeFileSync('./NEWRESUME.pdf', str, 'binary');
+    console.log('made it')
+    // res.send(buf, 'binary')
+    res.send(new Buffer(str, 'binary'))
+    // res.json(result);
   }
   catch (e) {
     console.log(e)
   }
 }
 // @ts-ignore
-const autoCreate = () => {
-  setTimeout(() => {
-    createJob({
-      body: {
-        jobDescription: testJob.replace(/\n/g, " "),
-        jdUrl: 'https://www.cocacola.com'
-      }
-    }
-      , {}, {})
-  }, 2000)
-}
+// const autoCreate = () => {
+//   setTimeout(() => {
+//     createJob({
+//       body: {
+//         jobDescription: testJob.replace(/\n/g, " "),
+//         jdUrl: 'https://www.cocacola.com'
+//       }
+//     }
+//       , {}, {})
+//   }, 2000)
+// }
 // autoCreate()

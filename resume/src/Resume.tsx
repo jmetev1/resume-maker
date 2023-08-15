@@ -1,6 +1,7 @@
 import DocumentDisplay from './DocumentDisplay'; // Assuming the above component is saved in a file named DocumentDisplay.js
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { baseUrl } from './utils';
 
 export default function Resume() {
   const location = useLocation();
@@ -10,7 +11,7 @@ export default function Resume() {
   console.log({ hash, pathname, search })
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/job/' + pathname.replace('/', '')).
+    fetch(baseUrl + 'job/' + pathname.replace('/', '')).
       then(data => data.json()).
       then(st => {
         console.log({ st })

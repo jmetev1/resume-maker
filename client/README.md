@@ -1,3 +1,3 @@
-trying to build so i can deploy
-with s3
-//ran build but it's point to prod server
+first make the cover letter. and do we save it right away even if we're not sure it's worth keeping?
+
+build server doesn't work so we can't commit
