@@ -2,7 +2,10 @@ import fs from 'fs'
 import { render } from './pdf-maker';
 import axios from "axios";
 import { models } from "./models";
-import { resume, first, second, third } from './test-job';
+import {
+  resume
+  , first, second, third
+} from './test-job';
 const { JobModel } = models;
 const getRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const getKey = () => `${getRandom(first)}-${getRandom(second)}-${getRandom(third)}`
@@ -12,6 +15,17 @@ export const getJobs = () => JobModel.find();
 export const getJob = async (myUrl) => JobModel.findOne({ myUrl })
 // func to delete job
 export const deleteJob = async (id) => JobModel.deleteOne({ _id: id })
+export const makePdf = async (_, res, _next) => {
+  res.setHeader('Content-type', 'application/pdf');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+
+  const buf = await render();
+  const str = buf.toString()
+  fs.writeFileSync('./NEWRESUME.pdf', str, 'binary');
+  console.log('made it')
+  // res.send(buf, 'binary')
+  res.send(new Buffer(str, 'binary'))
+}
 
 export const makeResume = async (req, res, _next) => {
   const { jobDescription, jdUrl, } = req.body;
@@ -32,27 +46,19 @@ export const makeResume = async (req, res, _next) => {
     ],
   }
   try {
-    // const { data } = await axios.post(url, stuff, { headers: { Authorization: `Bearer ${process.env.OPENAI_API}` } })
-    // data.choices.forEach((choice) => {
-    //   console.log(choice)
-    // })
-    // const result = await JobModel.create({
-    //   jobDescription,
-    //   jdUrl,
-    //   myUrl: getKey(),
-    //   coverLetter: data.choices[0].message.content
-    // });
-    // console.log({ result })
-    res.setHeader('Content-type', 'application/pdf');
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    const { data } = await axios.post(url, stuff, { headers: { Authorization: `Bearer ${process.env.OPENAI_API}` } })
+    data.choices.forEach((choice) => {
+      console.log(choice)
+    })
+    const result = await JobModel.create({
+      jobDescription,
+      jdUrl,
+      myUrl: getKey(),
+      coverLetter: data.choices[0].message.content
+    });
+    console.log({ result })
 
-    const buf = await render();
-    const str = buf.toString()
-    fs.writeFileSync('./NEWRESUME.pdf', str, 'binary');
-    console.log('made it')
-    // res.send(buf, 'binary')
-    res.send(new Buffer(str, 'binary'))
-    // res.json(result);
+    res.json(result);
   }
   catch (e) {
     console.log(e)
