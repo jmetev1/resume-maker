@@ -39,4 +39,4 @@ jobs:
       - name: Deploy to S3
         run: aws s3 sync ./dist s3://jacques-m.com
       - name: Create Cloudfront Invalidation
-        run: aws cloudfront create-invalidation --distribution-id E1MSUD6RKMJFSW --paths "/*"
+        run: aws cloudfront create-invalidation --distribution-id EEDCS37X3FOT2 --paths "/*"
