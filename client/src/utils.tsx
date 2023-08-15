@@ -1,11 +1,10 @@
 import { useQuery } from "react-query"
 
 export const baseUrl = import.meta.env.PROD ?
-  'https://goldfish-app-2-kbthc.ondigitalocean.app/api/'
+  'https://hammerhead-app-ni8cb.ondigitalocean.app/'
   : 'http://localhost:3000/api/'
 
 export const useData = (path, queryFn?) => {
-  // console.log('use data')
   const defaultQueryFn = async () => {
     const url = baseUrl + path
     // console.log({ url })

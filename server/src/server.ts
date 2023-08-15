@@ -11,8 +11,6 @@ import session from 'express-session';
 import MongoSession from 'connect-mongodb-session'
 const MongoDBStore = MongoSession(session);
 import fileupload from 'express-fileupload';
-import { getSignedUrl, receipt } from './aws';
-import { addClinic, addProvider, addVisit, getClinic, getTotalsByRep, getVisits, providersByRep, sign, spendingByDoctor } from './db';
 import authentication from './cognito';
 import { deleteJob, getJob, getJobs, makeResume } from './resume-route';
 
@@ -136,46 +134,6 @@ process.on('uncaughtException', (err) => {
   console.error('global exception:', err.message);
 });
 
-app.get('/api/totalsForProviders', async (req, res) => {
-  const totals = await getTotalsByRep(req.session.rep);
-  res.json(totals.sort(({ amount }, b) => b.amount - amount));
-});
-
-app.post('/api/sign', async (req, res) => {
-  const { id, status } = req.body;
-  res.json(await sign(req.session.rep, status, id));
-});
-
-
-app.get('/api/visits', async (_req, res) => {
-  const allVisits = await getVisits();
-  res.json(allVisits);
-});
-
-app.get('/api/getproviders', async (req, res) => {
-  res.json(await providersByRep(req.session.rep));
-});
-
-app.get('/api/getSpendingByDoctor/:clinicID', async (req, res) => {
-  res.json(await spendingByDoctor(req.session.rep, req.params.clinicID));
-});
-
-app.post('/api/provider', async ({ body, ...rest }, res) => {
-  res.json(
-    await addProvider({
-      ...body,
-      rep: rest.session.rep,
-    })
-  );
-});
-
-app.post('/api/getUploadURL', async ({ body }, res, _next) => {
-  // console.log({ body });
-  getSignedUrl(body.filename).then((url) => {
-    res.json({ url });
-  });
-});
-
 app.get('/api/error', () => {
   throw new Error('This is an error and it should be logged to the console');
 });
@@ -208,39 +166,6 @@ app.get('/crash/async',
 //   res.send('after async crash\n');
 // });
 
-app.get('/api/receipt/:receiptID', async (req, res, next) => {
-  const { receiptID } = req.params;
-  receipt(receiptID)
-    .then(({ ContentType, Body }) => {
-      res.contentType(ContentType);
-      res.send(Body);
-    })
-    .catch(next);
-});
-
-app.post('/api/visit', async (req, res) => {
-  const addVisitResult = await addVisit({
-    ...req.body,
-    rep: req.session.rep,
-    photoLocation: 's3',
-  });
-  res.json(addVisitResult);
-});
-
-app.post('/api/clinic', async (req, res) =>
-  res.json(
-    await addClinic({
-      ...req.body,
-      rep: req.session.rep,
-    })
-  )
-);
-
-app.get('/api/clinic', async (req, res) => {
-  const allClinics = await getClinic(req.session.rep);
-  // console.log({ allClinics });
-  res.send(JSON.stringify(allClinics));
-});
 
 // don't take the next out!!
 // eslint-disable-next-line

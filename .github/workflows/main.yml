@@ -7,7 +7,7 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - "server/**"
+      - 'server/**'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -37,6 +37,6 @@ jobs:
       - name: Build Application
         run: npm run build
       - name: Deploy to S3
-        run: aws s3 sync ./build s3://expensehawk.com
+        run: aws s3 sync ./build s3://jacques-m.com
       - name: Create Cloudfront Invalidation
         run: aws cloudfront create-invalidation --distribution-id E1MSUD6RKMJFSW --paths "/*"

@@ -27,7 +27,7 @@ export const Create = () => {
       })
       const data = await response.json()
       console.log('made it', data)
-      const { myUrl, coverLetter } = data
+      const { coverLetter } = data
       dispatch({ type: 'update', payload: { coverLetter } })
       // const url = new URL("../" + myUrl, window.location.href);
       // window.location.href = url.href;
