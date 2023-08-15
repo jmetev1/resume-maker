@@ -1,5 +1,5 @@
 // import './style.css';
-import pdf from 'pdfjs/';
+import pdf from 'pdfjs';
 
 export async function render() {
   const lorem =
@@ -71,7 +71,7 @@ export async function render() {
 
   const tr = table.header({
     font: fonts.HelveticaBold,
-    borderBottomWidth: 1.5,
+    // borderBottomWidth: 1.5,
   });
   tr.cell('#');
   tr.cell('Unit');
