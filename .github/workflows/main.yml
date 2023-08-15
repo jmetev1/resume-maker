@@ -37,6 +37,6 @@ jobs:
       - name: Build Application
         run: npm run build
       - name: Deploy to S3
-        run: aws s3 sync ./build s3://jacques-m.com
+        run: aws s3 sync ./dist s3://jacques-m.com
       - name: Create Cloudfront Invalidation
         run: aws cloudfront create-invalidation --distribution-id E1MSUD6RKMJFSW --paths "/*"
