@@ -14,10 +14,7 @@
     "lint": "cd server && npm run lint",
     "test": "cd client && npx playwright test --workers=1"
   },
-  "pre-commit": [
-    "test",
-    "build-server"
-  ],
+  "pre-commit": [],
   "devDependencies": {
     "pre-commit": "^1.2.2"
   },
